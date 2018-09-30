@@ -88,7 +88,7 @@ class RoundTrip
     /**
      * @return string
      */
-    public function getFromLocation(): string
+    public function getFromLocation(): ?string
     {
         return $this->fromLocation;
     }
@@ -104,7 +104,7 @@ class RoundTrip
     /**
      * @return string
      */
-    public function getToLocation(): string
+    public function getToLocation(): ?string
     {
         return $this->toLocation;
     }
@@ -120,7 +120,7 @@ class RoundTrip
     /**
      * @return \DateTime
      */
-    public function getFromDepDateTime(): \DateTime
+    public function getFromDepDateTime(): ?\DateTime
     {
         return $this->fromDepDateTime;
     }
@@ -136,7 +136,7 @@ class RoundTrip
     /**
      * @return \DateTime
      */
-    public function getToDepDateTime(): \DateTime
+    public function getToDepDateTime(): ?\DateTime
     {
         return $this->toDepDateTime;
     }
@@ -152,7 +152,7 @@ class RoundTrip
     /**
      * @return string
      */
-    public function getProgramId(): string
+    public function getProgramId(): ?string
     {
         return $this->programId;
     }
@@ -168,7 +168,7 @@ class RoundTrip
     /**
      * @return float
      */
-    public function getFullPrice(): float
+    public function getFullPrice(): ?float
     {
         return $this->fullPrice;
     }
@@ -184,7 +184,7 @@ class RoundTrip
     /**
      * @return float
      */
-    public function getFullPriceFirstClass(): float
+    public function getFullPriceFirstClass(): ?float
     {
         return $this->fullPriceFirstClass;
     }
@@ -200,7 +200,7 @@ class RoundTrip
     /**
      * @return Connection
      */
-    public function getCheapestFirstLeg(): Connection
+    public function getCheapestFirstLeg(): ?Connection
     {
         return $this->cheapestFirstLeg;
     }
@@ -216,7 +216,7 @@ class RoundTrip
     /**
      * @return Connection
      */
-    public function getCheapestFirstLegFirstClass(): Connection
+    public function getCheapestFirstLegFirstClass(): ?Connection
     {
         return $this->cheapestFirstLegFirstClass;
     }
@@ -232,7 +232,7 @@ class RoundTrip
     /**
      * @return Connection
      */
-    public function getCheapestLastLeg(): Connection
+    public function getCheapestLastLeg(): ?Connection
     {
         return $this->cheapestLastLeg;
     }
@@ -248,7 +248,7 @@ class RoundTrip
     /**
      * @return Connection
      */
-    public function getCheapestLastLegFirstClass(): Connection
+    public function getCheapestLastLegFirstClass(): ?Connection
     {
         return $this->cheapestLastLegFirstClass;
     }
@@ -264,7 +264,7 @@ class RoundTrip
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

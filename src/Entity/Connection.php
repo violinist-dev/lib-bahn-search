@@ -144,7 +144,7 @@ class Connection
     /**
      * @return string
      */
-    public function getFromLocation(): string
+    public function getFromLocation(): ?string
     {
         return $this->fromLocation;
     }
@@ -160,7 +160,7 @@ class Connection
     /**
      * @return string
      */
-    public function getToLocation(): string
+    public function getToLocation(): ?string
     {
         return $this->toLocation;
     }
@@ -176,7 +176,7 @@ class Connection
     /**
      * @return string
      */
-    public function getFromLocationId(): string
+    public function getFromLocationId(): ?string
     {
         return $this->fromLocationId;
     }
@@ -192,7 +192,7 @@ class Connection
     /**
      * @return string
      */
-    public function getToLocationId(): string
+    public function getToLocationId(): ?string
     {
         return $this->toLocationId;
     }
@@ -208,7 +208,7 @@ class Connection
     /**
      * @return \DateTimeInterface
      */
-    public function getResultTime(): \DateTimeInterface
+    public function getResultTime(): ?\DateTimeInterface
     {
         return $this->resultTime;
     }
@@ -224,7 +224,7 @@ class Connection
     /**
      * @return \DateTimeInterface
      */
-    public function getFromTime(): \DateTimeInterface
+    public function getFromTime(): ?\DateTimeInterface
     {
         return $this->fromTime;
     }
@@ -240,7 +240,7 @@ class Connection
     /**
      * @return \DateTimeInterface
      */
-    public function getToTime(): \DateTimeInterface
+    public function getToTime(): ?\DateTimeInterface
     {
         return $this->toTime;
     }
@@ -256,7 +256,7 @@ class Connection
     /**
      * @return int
      */
-    public function getDuration(): int
+    public function getDuration(): ?int
     {
         return $this->duration;
     }
@@ -272,7 +272,7 @@ class Connection
     /**
      * @return int
      */
-    public function getChanges(): int
+    public function getChanges(): ?int
     {
         return $this->changes;
     }
@@ -288,7 +288,7 @@ class Connection
     /**
      * @return float
      */
-    public function getMinimumFare(): float
+    public function getMinimumFare(): ?float
     {
         return $this->minimumFare;
     }
@@ -304,7 +304,7 @@ class Connection
     /**
      * @return string
      */
-    public function getMinimumFareCabinClass(): string
+    public function getMinimumFareCabinClass(): ?string
     {
         return $this->minimumFareCabinClass;
     }
@@ -320,7 +320,7 @@ class Connection
     /**
      * @return string
      */
-    public function getMinimumFareText(): string
+    public function getMinimumFareText(): ?string
     {
         return $this->minimumFareText;
     }
@@ -337,7 +337,7 @@ class Connection
     /**
      * @return float
      */
-    public function getCheapFare(): float
+    public function getCheapFare(): ?float
     {
         return $this->cheapFare;
     }
@@ -353,7 +353,7 @@ class Connection
     /**
      * @return float
      */
-    public function getFlexFare(): float
+    public function getFlexFare(): ?float
     {
         return $this->flexFare;
     }
@@ -369,7 +369,7 @@ class Connection
     /**
      * @return string
      */
-    public function getProducts(): string
+    public function getProducts(): ?string
     {
         return $this->products;
     }
@@ -385,7 +385,7 @@ class Connection
     /**
      * @return string
      */
-    public function getCheapFareText(): string
+    public function getCheapFareText(): ?string
     {
         return $this->cheapFareText;
     }
@@ -401,7 +401,7 @@ class Connection
     /**
      * @return string
      */
-    public function getFlexFareText(): string
+    public function getFlexFareText(): ?string
     {
         return $this->flexFareText;
     }
@@ -417,7 +417,7 @@ class Connection
     /**
      * @return string
      */
-    public function getCheapFareCabinClass(): string
+    public function getCheapFareCabinClass(): ?string
     {
         return $this->cheapFareCabinClass;
     }
@@ -433,7 +433,7 @@ class Connection
     /**
      * @return string
      */
-    public function getFlexFareCabinClass(): string
+    public function getFlexFareCabinClass(): ?string
     {
         return $this->flexFareCabinClass;
     }
