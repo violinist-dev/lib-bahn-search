@@ -177,8 +177,6 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
         $latestArrival->add(new \DateInterval('PT' . $timeFrame . 'H'));
 
         $fromDateTime = clone $start;
-        $addHours = round($timeFrame / 4);
-        $fromDateTime->add(new \DateInterval('PT' . $addHours . 'H'));
         return [$earliestDeparture, $latestArrival, $fromDateTime];
     }
 }

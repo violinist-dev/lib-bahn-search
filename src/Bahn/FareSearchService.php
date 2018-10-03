@@ -191,16 +191,15 @@ class FareSearchService
             'traveller_Nr'                          => '1',
         ]);
         $crawler = $browser->submit($form);
-        $max = 2;
+        $max = 4;
         $nextLink = $crawler->selectLink('Später');
         $nextLinkNode = $nextLink->getNode(0);
         while ($nextLinkNode && false === strpos($nextLinkNode->getAttribute('class'), 'disabled') && $max--) {
-            $link = $crawler->selectLink('Später')->link();
-            $crawler = $browser->click($link);
+            $crawler = $browser->click($nextLink->link());
             $nextLink = $crawler->selectLink('Später');
             $nextLinkNode = $nextLink->getNode(0);
         }
-        $max = 2;
+        /*$max = 4;
         $nextLink = $crawler->selectLink('Früher');
         $nextLinkNode = $nextLink->getNode(0);
         while ($nextLinkNode && false === strpos($nextLinkNode->getAttribute('class'), 'disabled') && $max--) {
@@ -208,7 +207,7 @@ class FareSearchService
             $crawler = $browser->click($link);
             $nextLink = $crawler->selectLink('Früher');
             $nextLinkNode = $nextLink->getNode(0);
-        }
+        }*/
         return $crawler;
     }
 

@@ -48,7 +48,29 @@ class CheapConnectionService
         $fromDateTime = $firstLeg['fromDateTime'];
         $earliestDeparture = $firstLeg['earliestDeparture'];
         $latestArrival = $firstLeg['latestArrival'];
-        $connections = $this->fareSearchService->findFares($from, $to, $fromDateTime, $programId, $cabinClasses);
+
+        $newFromDateTime = $fromDateTime;
+        $connections = [];
+        do {
+            $newConnections = $this->fareSearchService->findFares($from, $to, $newFromDateTime, $programId, $cabinClasses);
+            /** @noinspection AdditionOperationOnArraysInspection */
+            $connections += $newConnections;
+
+            $foundOneOutOfRange = false;
+            $latestConnection = null;
+            foreach ($connections as $connection) {
+                if ($latestConnection === null ||
+                    ($latestConnection instanceof Connection && $latestConnection->getFromTime() < $connection->getFromTime())) {
+                    $latestConnection = $connection;
+                }
+                if ($connection->getToTime() > $latestArrival) {
+                    $foundOneOutOfRange = true;
+                    break;
+                }
+            }
+            $newFromDateTime = clone $latestConnection->getFromTime();
+        } while (!$foundOneOutOfRange && \count($newConnections) > 1);
+
         $this->sortConnections($connections, $earliestDeparture, $latestArrival);
 
         if ($this->entityManager !== null) {
