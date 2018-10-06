@@ -52,7 +52,8 @@ class CheapConnectionService
         $newFromDateTime = $fromDateTime;
         $connections = [];
         do {
-            $newConnections = $this->fareSearchService->findFares($from, $to, $newFromDateTime, $programId, $cabinClasses);
+            $newConnections = $this->fareSearchService->findFares($from, $to, $newFromDateTime, $programId,
+                $cabinClasses);
             /** @noinspection AdditionOperationOnArraysInspection */
             $connections += $newConnections;
 
@@ -102,47 +103,63 @@ class CheapConnectionService
      */
     protected function sortConnections(&$connections, $earliestDeparture, $latestArrival): void
     {
-        usort($connections, function (Connection $con1, Connection $con2) use ($earliestDeparture, $latestArrival) {
-            if ($con1->getFromTime() < $earliestDeparture && $con2->getFromTime() >= $earliestDeparture) {
+        usort($connections,
+            function (Connection $con1, Connection $con2) use ($earliestDeparture, $latestArrival): bool {
+                // Check if price is set
+                if ($con2->getMinimumFare() === null) {
+                    return false;
+                }
+                if ($con1->getMinimumFare() === null) {
+                    return true;
+                }
+                // Check if times are in earliestDeparture and latestArrival time frames
+                if ($con1->getFromTime() < $earliestDeparture && $con2->getFromTime() >= $earliestDeparture) {
+                    return true;
+                }
+                if ($con1->getToTime() <= $latestArrival && $con2->getToTime() > $latestArrival) {
+                    return false;
+                }
+                if ($con2->getFromTime() < $earliestDeparture && $con1->getFromTime() >= $earliestDeparture) {
+                    return false;
+                }
+                if ($con2->getToTime() <= $latestArrival && $con1->getToTime() > $latestArrival) {
+                    return true;
+                }
+                // compare valid results
+                if ($con1->getMinimumFare() < $con2->getMinimumFare()) {
+                    return false;
+                }
+                if ($con1->getMinimumFare() > $con2->getMinimumFare()) {
+                    return true;
+                }
+                if ($con1->getChanges() < $con2->getChanges()) {
+                    return false;
+                }
+                if ($con1->getChanges() > $con2->getChanges()) {
+                    return true;
+                }
+                if (abs($con1->getDuration() - $con2->getDuration()) >= 60) {
+                    return $con1->getDuration() > $con2->getDuration();
+                }
+                if ($con1->getToTime() < $con2->getToTime()) {
+                    return false;
+                }
+                if ($con1->getToTime() > $con2->getToTime()) {
+                    return true;
+                }
+                if ($con1->getFromTime() > $con2->getFromTime()) {
+                    return false;
+                }
+                if ($con1->getFromTime() < $con2->getFromTime()) {
+                    return true;
+                }
+                if ((int)$con1->getMinimumFareCabinClass() < (int)$con2->getMinimumFareCabinClass()) {
+                    return false;
+                }
+                if ((int)$con1->getMinimumFareCabinClass() > (int)$con2->getMinimumFareCabinClass()) {
+                    return true;
+                }
                 return false;
-            }
-            if ($con1->getToTime() < $latestArrival && $con2->getToTime() >= $latestArrival) {
-                return false;
-            }
-            if ($con2->getFromTime() < $earliestDeparture && $con1->getFromTime() >= $earliestDeparture) {
-                return true;
-            }
-            if ($con2->getToTime() < $latestArrival && $con1->getToTime() >= $latestArrival) {
-                return true;
-            }
-            if ($con1->getMinimumFare() < $con2->getMinimumFare()) {
-                return false;
-            }
-            if ($con1->getMinimumFare() > $con2->getMinimumFare()) {
-                return true;
-            }
-            if ($con1->getChanges() < $con2->getChanges()) {
-                return false;
-            }
-            if ($con1->getChanges() > $con2->getChanges()) {
-                return true;
-            }
-            if (abs($con1->getDuration() - $con2->getDuration()) >= 60) {
-                return $con1->getDuration() > $con2->getDuration();
-            }
-            if ($con1->getFromTime() < $con2->getFromTime()) {
-                return false;
-            }
-            if ($con1->getFromTime() > $con2->getFromTime()) {
-                return true;
-            }
-            if ($con1->getMinimumFareCabinClass() > $con2->getMinimumFareCabinClass()) {
-                return false;
-            }
-            if ($con1->getMinimumFareCabinClass() < $con2->getMinimumFareCabinClass()) {
-                return true;
-            }
-            return false;
-        });
+            });
     }
 }

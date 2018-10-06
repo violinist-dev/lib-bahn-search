@@ -40,9 +40,16 @@ class CheapRoundTripConnectionService
         $fullPriceCheapest = null;
         if ($conFirstClassFirst !== null && $conFirstClassLast !== null) {
             $fullPriceFirstClass = $conFirstClassFirst->getMinimumFare() + $conFirstClassLast->getMinimumFare();
+            $fullPriceCheapest = $fullPriceFirstClass;
         }
         if ($conFirst !== null && $conLast !== null) {
             $fullPriceCheapest = $conFirst->getMinimumFare() + $conLast->getMinimumFare();
+        }
+        elseif ($conFirst !== null && $conFirstClassLast !== null) {
+            $fullPriceCheapest = $conFirst->getMinimumFare() + $conFirstClassLast->getMinimumFare();
+        }
+        elseif ($conLast !== null && $conFirstClassFirst !== null) {
+            $fullPriceCheapest = $conLast->getMinimumFare() + $conFirstClassFirst->getMinimumFare();
         }
 
         $roundTrip = new RoundTrip();

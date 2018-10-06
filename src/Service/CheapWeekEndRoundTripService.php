@@ -2,8 +2,8 @@
 
 namespace Dpeuscher\BahnSearch\Service;
 
-use Dpeuscher\BahnSearch\Entity\RoundTrip;
 use Doctrine\ORM\EntityManager;
+use Dpeuscher\BahnSearch\Entity\RoundTrip;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -86,32 +86,44 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
     /**
      * @param string $from
      * @param string $to
+     * @param \DateTime|null $baseDate
      * @return RoundTrip[]
-     * @throws \Exception
      */
-    public function getRoundTrips(string $from, string $to): array
+    public function getRoundTrips(string $from, string $to, ?\DateTime $baseDate = null): array
     {
-        $currentDate = new \DateTime('Friday');
         $roundTrips = [];
+
+        try {
+            $currentDate = $baseDate ?? new \DateTime('Friday');
+            while ($currentDate->format('l') !== 'Friday') {
+                $currentDate->add(new \DateInterval('P1D'));
+            }
+        } catch (\Exception $e) {
+            return $roundTrips;
+        }
+        $startTime = clone $currentDate;
+        /** @noinspection UnSafeIsSetOverArrayInspection */
         do {
-            $startTime = clone $currentDate;
-            $startTime->setTime($this->startTime, 0);
+            try {
+                $startTime->setTime($this->startTime, 0);
 
-            $returnTime = clone $currentDate;
-            $returnTime->add(new \DateInterval('P2D'));
-            $returnTime->setTime($this->returnTime, 0);
+                $returnTime = clone $currentDate;
+                $returnTime->add(new \DateInterval('P2D'));
+                $returnTime->setTime($this->returnTime, 0);
 
-            $roundTrip = $this->getRoundTripsForDate($from, $to, $startTime, $this->startTimeFrame, $returnTime,
-                $this->returnTimeFrame);
-            $roundTrips[] = $roundTrip;
+                $roundTrip = $this->getRoundTripsForDate($from, $to, $startTime, $this->startTimeFrame, $returnTime,
+                    $this->returnTimeFrame);
+                $roundTrips[] = $roundTrip;
 
-            $currentDate->add(new \DateInterval('P7D'));
+                $currentDate->add(new \DateInterval('P7D'));
 
-            $this->entityManager->persist($roundTrip);
-            $this->entityManager->flush();
+                $this->entityManager->persist($roundTrip);
+                $this->entityManager->flush();
 
-            $this->logger->info($roundTrip->__toString());
-        } while ($roundTrip->getCheapestFirstLeg() !== null);
+                $this->logger->info($roundTrip->__toString());
+            } catch (\Exception $e) {
+            }
+        } while (isset($roundTrip) && $roundTrip->getCheapestFirstLeg() !== null);
 
         return $roundTrips;
     }

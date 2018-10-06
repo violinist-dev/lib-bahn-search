@@ -4,6 +4,7 @@ namespace Dpeuscher\BahnSearch\Bahn;
 
 use Dpeuscher\BahnSearch\Entity\Connection;
 use Dpeuscher\Util\Cache\CacheReturner;
+use GuzzleHttp\Client;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -18,20 +19,38 @@ class FareSearchService
     private $findLocationService;
 
     /**
-     * @var CacheReturner
+     * @var ?CacheReturner
      */
     private $cacheReturner;
+
+    /**
+     * @var Client
+     */
+    private $guzzle;
+
+    /**
+     * @var \DateTime
+     */
+    private $searchTime;
 
     /**
      * FareSearchService constructor.
      *
      * @param FindLocationService $findLocationService
+     * @param Client $guzzle
      * @param CacheReturner $cacheReturner
+     * @param \DateTime $searchTime
      */
-    public function __construct(FindLocationService $findLocationService, CacheReturner $cacheReturner)
-    {
+    public function __construct(
+        FindLocationService $findLocationService,
+        Client $guzzle,
+        ?CacheReturner $cacheReturner = null,
+        \DateTime $searchTime = null
+    ) {
         $this->findLocationService = $findLocationService;
+        $this->guzzle = $guzzle;
         $this->cacheReturner = $cacheReturner;
+        $this->searchTime = $searchTime;
     }
 
     /**
@@ -49,8 +68,6 @@ class FareSearchService
         string $programId,
         array $cabinClasses
     ): array {
-        $searchTime = new \DateTime();
-
         $fromCode = $this->locationToCode($from);
         $toCode = $this->locationToCode($to);
 
@@ -64,11 +81,9 @@ class FareSearchService
                 $fromCode,
                 $toCode,
                 $fromDateTime,
-                $searchTime,
                 &$connections
             ) {
-                $connections[] = $this->buildConnection($node, $cabinClass, $fromCode, $toCode, $fromDateTime,
-                    $searchTime);
+                $connections[] = $this->buildConnection($node, $cabinClass, $fromCode, $toCode, $fromDateTime);
             });
         }
 
@@ -94,9 +109,8 @@ class FareSearchService
         $toCode,
         $cabinClass
     ): Crawler {
-        $guzzle = new \GuzzleHttp\Client();
         $browser = new \Goutte\Client();
-        $browser->setClient($guzzle);
+        $browser->setClient($this->guzzle);
 
         $crawler = $browser->request('GET', 'https://reiseauskunft.bahn.de/bin/query.exe/dn?program=' . $programId);
         $form = $crawler->selectButton('Suchen')->form();
@@ -217,7 +231,6 @@ class FareSearchService
      * @param string $fromCode
      * @param string $toCode
      * @param \DateTime $fromDateTime
-     * @param \DateTime $searchTime
      * @return Connection
      * @throws \Exception
      */
@@ -226,8 +239,7 @@ class FareSearchService
         string $cabinClass,
         string $fromCode,
         string $toCode,
-        \DateTime $fromDateTime,
-        \DateTime $searchTime
+        \DateTime $fromDateTime
     ): Connection {
         $firstCabinClass = $cabinClass;
         $secondCabinClass = $cabinClass;
@@ -305,7 +317,7 @@ class FareSearchService
         $connection->setFromTime(clone $departureDateTime);
         $connection->setToTime(clone $arrivalDateTime);
         $connection->setProducts($products);
-        $connection->setResultTime($searchTime);
+        $connection->setResultTime($this->searchTime);
 
         if (!empty($firstFare) && ($secondFare === null || $firstFare < $secondFare)) {
             $connection->setMinimumFare($firstFare);
@@ -360,8 +372,9 @@ class FareSearchService
 
     private function locationToCode(string $from): string
     {
-        return $this->cacheReturner->return($from, function ($from) {
+        $callback = function ($from) {
             return $this->findLocationService->findLocationCodeByName($from);
-        });
+        };
+        return $this->cacheReturner ? $this->cacheReturner->return($from, $callback) : $callback($from);
     }
 }
