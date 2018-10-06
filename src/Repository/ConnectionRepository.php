@@ -13,19 +13,4 @@ use Dpeuscher\BahnSearch\Entity\Connection;
  */
 class ConnectionRepository extends EntityRepository
 {
-
-    /**
-     * @param int $id
-     * @return Connection[] Returns an array of Connection objects
-     */
-    public function findById(int $id): array
-    {
-        return $this->createQueryBuilder('h')
-            ->andWhere('h.id = :id')
-            ->setParameter('id', $id)
-            ->orderBy('h.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult();
-    }
 }

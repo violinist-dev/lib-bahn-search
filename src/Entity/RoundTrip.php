@@ -85,6 +85,8 @@ class RoundTrip
      */
     private $cheapestLastLegFirstClass;
 
+    // @codeCoverageIgnoreStart
+
     /**
      * @return string
      */
@@ -268,6 +270,8 @@ class RoundTrip
     {
         return $this->id;
     }
+
+    // @codeCoverageIgnoreEnd
 
     public function __toString(): string
     {

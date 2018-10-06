@@ -133,6 +133,8 @@ class Connection
      */
     private $resultTime;
 
+    // @codeCoverageIgnoreStart
+
     /**
      * @return int
      */
@@ -445,6 +447,8 @@ class Connection
     {
         $this->flexFareCabinClass = $flexFareCabinClass;
     }
+
+    // @codeCoverageIgnoreEnd
 
     public function __toString(): string
     {

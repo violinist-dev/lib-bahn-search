@@ -365,8 +365,10 @@ class FareSearchService
             } else {
                 return $currentDate;
             }
+            // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
             die('Should not happen: ' . $e);
+            // @codeCoverageIgnoreEnd
         }
     }
 

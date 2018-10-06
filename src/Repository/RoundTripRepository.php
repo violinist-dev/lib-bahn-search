@@ -13,19 +13,4 @@ use Dpeuscher\BahnSearch\Entity\RoundTrip;
  */
 class RoundTripRepository extends EntityRepository
 {
-    /**
-     * @param int $id
-     * @return RoundTrip[] Returns an array of Connection objects
-     */
-    public function findById(int $id): array
-    {
-        return $this->createQueryBuilder('h')
-            ->andWhere('h.id = :id')
-            ->setParameter('id', $id)
-            ->orderBy('h.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult();
-    }
-
 }

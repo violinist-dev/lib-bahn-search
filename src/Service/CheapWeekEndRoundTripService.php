@@ -66,8 +66,8 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
     public function __construct(
         CheapRoundTripConnectionService $cheapRoundTripConnectionService,
         LoggerInterface $logger,
-        EntityManager $entityManager,
-        string $programId,
+        ?EntityManager $entityManager = null,
+        string $programId = '',
         int $startTime = 15,
         int $startTimeFrame = 12,
         int $returnTime = 15,
@@ -88,6 +88,7 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
      * @param string $to
      * @param \DateTime|null $baseDate
      * @return RoundTrip[]
+     * @throws \Doctrine\ORM\ORMException
      */
     public function getRoundTrips(string $from, string $to, ?\DateTime $baseDate = null): array
     {
@@ -95,35 +96,53 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
 
         try {
             $currentDate = $baseDate ?? new \DateTime('Friday');
+            $currentDate->setTime(0, 0, 0);
             while ($currentDate->format('l') !== 'Friday') {
                 $currentDate->add(new \DateInterval('P1D'));
             }
+            // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
             return $roundTrips;
+            // @codeCoverageIgnoreEnd
         }
-        $startTime = clone $currentDate;
         /** @noinspection UnSafeIsSetOverArrayInspection */
         do {
+            $startTime = clone $currentDate;
+            $startTime->setTime($this->startTime, 0);
+
+            $returnTime = clone $currentDate;
+
             try {
-                $startTime->setTime($this->startTime, 0);
-
-                $returnTime = clone $currentDate;
                 $returnTime->add(new \DateInterval('P2D'));
-                $returnTime->setTime($this->returnTime, 0);
+                // @codeCoverageIgnoreStart
+            } catch (\Exception $e) {
+                break;
+                // @codeCoverageIgnoreEnd
+            }
 
-                $roundTrip = $this->getRoundTripsForDate($from, $to, $startTime, $this->startTimeFrame, $returnTime,
-                    $this->returnTimeFrame);
+            $returnTime->setTime($this->returnTime, 0);
+
+            $roundTrip = $this->getRoundTripsForDate($from, $to, $startTime, $this->startTimeFrame, $returnTime,
+                $this->returnTimeFrame);
+
+            if ($roundTrip !== null) {
                 $roundTrips[] = $roundTrip;
+            }
 
+            try {
                 $currentDate->add(new \DateInterval('P7D'));
-
+                // @codeCoverageIgnoreStart
+            } catch (\Exception $e) {
+                break;
+                // @codeCoverageIgnoreEnd
+            }
+            if ($this->entityManager !== null) {
                 $this->entityManager->persist($roundTrip);
                 $this->entityManager->flush();
-
-                $this->logger->info($roundTrip->__toString());
-            } catch (\Exception $e) {
             }
-        } while (isset($roundTrip) && $roundTrip->getCheapestFirstLeg() !== null);
+
+            $this->logger->info($roundTrip->__toString());
+        } while (isset($roundTrip) && $roundTrip->getCheapestFirstLeg() !== null && $roundTrip->getCheapestLastLeg() !== null);
 
         return $roundTrips;
     }
@@ -136,7 +155,7 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
      * @param \DateTime $lastLegStart
      * @param int $lastLegTimeFrame
      * @return RoundTrip
-     * @throws \Exception
+     * @throws \Doctrine\ORM\ORMException
      */
     private function getRoundTripsForDate(
         string $from,
@@ -145,33 +164,39 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
         int $firstLegTimeFrame,
         \DateTime $lastLegStart,
         int $lastLegTimeFrame
-    ): RoundTrip {
-        [$earliestDeparture, $latestArrival, $fromDateTime] = $this->calculateDates($firstLegStart,
-            $firstLegTimeFrame);
+    ): ?RoundTrip {
+        try {
 
-        $firstLeg = [
-            'from'              => $from,
-            'to'                => $to,
-            'programId'         => $this->programId,
-            'fromDateTime'      => $fromDateTime,
-            'cabinClasses'      => ['1', '2'],
-            'earliestDeparture' => $earliestDeparture,
-            'latestArrival'     => $latestArrival,
-        ];
+            [$earliestDeparture, $latestArrival, $fromDateTime] = $this->calculateDates($firstLegStart,
+                $firstLegTimeFrame);
 
-        [$earliestDeparture2, $latestArrival2, $fromDateTime2] = $this->calculateDates($lastLegStart,
-            $lastLegTimeFrame);
+            $firstLeg = [
+                'from'              => $from,
+                'to'                => $to,
+                'programId'         => $this->programId,
+                'fromDateTime'      => $fromDateTime,
+                'cabinClasses'      => ['1', '2'],
+                'earliestDeparture' => $earliestDeparture,
+                'latestArrival'     => $latestArrival,
+            ];
 
-        $lastLeg = [
-            'from'              => $to,
-            'to'                => $from,
-            'programId'         => $this->programId,
-            'fromDateTime'      => $fromDateTime2,
-            'cabinClasses'      => ['1', '2'],
-            'earliestDeparture' => $earliestDeparture2,
-            'latestArrival'     => $latestArrival2,
-        ];
+            [$earliestDeparture2, $latestArrival2, $fromDateTime2] = $this->calculateDates($lastLegStart,
+                $lastLegTimeFrame);
 
+            $lastLeg = [
+                'from'              => $to,
+                'to'                => $from,
+                'programId'         => $this->programId,
+                'fromDateTime'      => $fromDateTime2,
+                'cabinClasses'      => ['1', '2'],
+                'earliestDeparture' => $earliestDeparture2,
+                'latestArrival'     => $latestArrival2,
+            ];
+            // @codeCoverageIgnoreStart
+        } catch (\Exception $e) {
+            return null;
+            // @codeCoverageIgnoreEnd
+        }
         return $this->cheapRoundTripConnectionService->getRoundTrip($firstLeg, $lastLeg);
     }
 
