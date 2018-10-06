@@ -52,6 +52,11 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
     protected $returnTimeFrame;
 
     /**
+     * @var int
+     */
+    protected $sleepBetweenSearches;
+
+    /**
      * CheapWeekEndRoundTripService constructor.
      *
      * @param CheapRoundTripConnectionService $cheapRoundTripConnectionService
@@ -62,6 +67,7 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
      * @param int $startTimeFrame
      * @param int $returnTime
      * @param int $returnTimeFrame
+     * @param int $sleepBetweenSearches
      */
     public function __construct(
         CheapRoundTripConnectionService $cheapRoundTripConnectionService,
@@ -71,7 +77,8 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
         int $startTime = 15,
         int $startTimeFrame = 12,
         int $returnTime = 15,
-        int $returnTimeFrame = 12
+        int $returnTimeFrame = 12,
+        int $sleepBetweenSearches = 0
     ) {
         $this->logger = $logger;
         $this->cheapRoundTripConnectionService = $cheapRoundTripConnectionService;
@@ -81,6 +88,7 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
         $this->startTimeFrame = $startTimeFrame;
         $this->returnTime = $returnTime;
         $this->returnTimeFrame = $returnTimeFrame;
+        $this->sleepBetweenSearches = $sleepBetweenSearches;
     }
 
     /**
@@ -142,6 +150,9 @@ class CheapWeekEndRoundTripService implements LoggerAwareInterface
             }
 
             $this->logger->info($roundTrip->__toString());
+            if ($roundTrip !== null && $roundTrip->getCheapestFirstLeg() !== null && $roundTrip->getCheapestLastLeg() !== null) {
+                sleep($this->sleepBetweenSearches);
+            }
         } while (isset($roundTrip) && $roundTrip->getCheapestFirstLeg() !== null && $roundTrip->getCheapestLastLeg() !== null);
 
         return $roundTrips;
