@@ -69,6 +69,9 @@ class CheapConnectionService
                     break;
                 }
             }
+            if ($latestConnection === null) {
+                break;
+            }
             $newFromDateTime = clone $latestConnection->getFromTime();
         } while (!$foundOneOutOfRange && \count($newConnections) > 1);
 
