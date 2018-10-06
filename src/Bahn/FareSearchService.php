@@ -45,12 +45,12 @@ class FareSearchService
         FindLocationService $findLocationService,
         Client $guzzle,
         ?CacheReturner $cacheReturner = null,
-        \DateTime $searchTime = null
+        ?\DateTime $searchTime = null
     ) {
         $this->findLocationService = $findLocationService;
         $this->guzzle = $guzzle;
         $this->cacheReturner = $cacheReturner;
-        $this->searchTime = $searchTime;
+        $this->searchTime = $searchTime ?? new \DateTime();
     }
 
     /**
