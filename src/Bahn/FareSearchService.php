@@ -317,7 +317,7 @@ class FareSearchService
         $connection->setFromTime(clone $departureDateTime);
         $connection->setToTime(clone $arrivalDateTime);
         $connection->setProducts($products);
-        $connection->setResultTime($this->searchTime);
+        $connection->setResultTime(clone $this->searchTime);
 
         if (!empty($firstFare) && ($secondFare === null || $firstFare < $secondFare)) {
             $connection->setMinimumFare($firstFare);

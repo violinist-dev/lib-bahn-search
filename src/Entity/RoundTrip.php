@@ -20,6 +20,12 @@ class RoundTrip
     private $id;
 
     /**
+     * @ORM\Column(type="datetime")
+     * @var \DateTime
+     */
+    private $searchTime;
+
+    /**
      * @ORM\Column(type="string", length=255)
      * @var string
      */
@@ -32,13 +38,13 @@ class RoundTrip
     private $toLocation;
 
     /**
-     * @ORM\Column(type="datetime", length=255)
+     * @ORM\Column(type="datetime")
      * @var \DateTime
      */
     private $fromDepDateTime;
 
     /**
-     * @ORM\Column(type="datetime", length=255)
+     * @ORM\Column(type="datetime")
      * @var \DateTime
      */
     private $toDepDateTime;
@@ -86,6 +92,22 @@ class RoundTrip
     private $cheapestLastLegFirstClass;
 
     // @codeCoverageIgnoreStart
+
+    /**
+     * @return \DateTime
+     */
+    public function getSearchTime()
+    {
+        return $this->searchTime;
+    }
+
+    /**
+     * @param \DateTime $searchTime
+     */
+    public function setSearchTime(\DateTime $searchTime): void
+    {
+        $this->searchTime = $searchTime;
+    }
 
     /**
      * @return string

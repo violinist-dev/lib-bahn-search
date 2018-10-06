@@ -16,13 +16,20 @@ class CheapRoundTripConnectionService
     protected $cheapConnectionService;
 
     /**
+     * @var \DateTime
+     */
+    protected $searchTime;
+
+    /**
      * CheapRoundTripConnectionService constructor.
      *
      * @param CheapConnectionService $cheapConnectionService
+     * @param \DateTime|null $searchTime
      */
-    public function __construct(CheapConnectionService $cheapConnectionService)
+    public function __construct(CheapConnectionService $cheapConnectionService, ?\DateTime $searchTime = null)
     {
         $this->cheapConnectionService = $cheapConnectionService;
+        $this->searchTime = $searchTime ?? new \DateTime();
     }
 
     /**
@@ -64,6 +71,7 @@ class CheapRoundTripConnectionService
         $roundTrip->setToDepDateTime($lastLeg['fromDateTime']);
         $roundTrip->setFullPrice($fullPriceCheapest);
         $roundTrip->setFullPriceFirstClass($fullPriceFirstClass);
+        $roundTrip->setSearchTime(clone $this->searchTime);
 
         return $roundTrip;
     }
